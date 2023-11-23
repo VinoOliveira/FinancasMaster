@@ -8,10 +8,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity(name="transactions")
-@Table(name="transactions")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -21,12 +20,18 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @ManyToOne
-    @JoinColumn(name="user_id")
     private User userID;
     private BigDecimal amount;
-    private LocalDateTime timestemp;
+    private LocalDate date;
     @Enumerated(EnumType.STRING)
     private TransactionType transactionType;
 
     public Transaction() {}
+
+    public Transaction(User userID, BigDecimal amount, LocalDate date, TransactionType transactionType) {
+        this.userID = userID;
+        this.amount = amount;
+        this.date = date;
+        this.transactionType = transactionType;
+    }
 }

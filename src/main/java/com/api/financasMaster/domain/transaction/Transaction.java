@@ -10,28 +10,30 @@ import lombok.Setter;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Entity(name="transactions")
+@Entity(name = "transactions")
 @Getter
 @Setter
 @AllArgsConstructor
-@EqualsAndHashCode(of="id")
+@EqualsAndHashCode(of = "id")
 public class Transaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     @ManyToOne
-    private User userID;
+    private User user;
     private BigDecimal amount;
     private LocalDate date;
     @Enumerated(EnumType.STRING)
     private TransactionType transactionType;
 
-    public Transaction() {}
+    public Transaction() {
+    }
 
-    public Transaction(User userID, BigDecimal amount, LocalDate date, TransactionType transactionType) {
-        this.userID = userID;
+    public Transaction(User user, BigDecimal amount, LocalDate date, TransactionType transactionType) {
+        this.user = user;
         this.amount = amount;
         this.date = date;
         this.transactionType = transactionType;
     }
 }
+

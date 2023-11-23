@@ -1,4 +1,4 @@
-package com.api.financasMaster.domain.repositories;
+package com.api.financasMaster.repositories;
 
 import com.api.financasMaster.domain.transaction.Transaction;
 import org.springframework.data.jpa.repository.JpaRepository;

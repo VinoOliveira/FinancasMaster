@@ -9,7 +9,6 @@ import lombok.Setter;
 import java.math.BigDecimal;
 
 @Entity(name="users")
-@Table(name="users")
 @Getter
 @Setter
 @AllArgsConstructor
@@ -26,4 +25,11 @@ public class User {
     private BigDecimal balance;
 
     public User() {}
+
+    public User(String firstName, String lastName, String email, String password) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.password = password;
+    }
 }

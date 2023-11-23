@@ -10,13 +10,15 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public User validateSingUpUser(String firstName,String lastName,String email, String password) throws Exception {
-        if (userRepository.findByEmail(email).isPresent()) {
+    public User validateSingUpUser(User user) throws Exception {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             //email ja cadastrado
             throw new Exception("email already registered");
         }else{
             // email não encontrado
-            return new User(firstName,lastName,email,password);
+            user.setId(null);
+            userRepository.save(user);
+            return user;
         }
     }
 

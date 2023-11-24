@@ -2,6 +2,7 @@ package com.api.financasMaster.services;
 
 import com.api.financasMaster.domain.user.User;
 import com.api.financasMaster.dto.LoginRequest;
+import com.api.financasMaster.dto.UserDTO;
 import com.api.financasMaster.repositories.UserRepository;
 import com.api.financasMaster.services.exceptions.EmailAlreadyRegisteredException;
 import com.api.financasMaster.services.exceptions.EmailNotFoundException;
@@ -17,13 +18,13 @@ public class UserService {
     private UserRepository userRepository;
 
 
-    public User validateSingUpUser(User user) throws Exception {
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+    public User validateSingUpUser(UserDTO data) throws Exception {
+        if (userRepository.findByEmail(data.email()).isPresent()) {
             //email ja cadastrado
             throw new EmailAlreadyRegisteredException("email already registered");
         } else {
             // email não encontrado, procede com cadastro
-            user.setId(null);
+            User user = new User(data);
             userRepository.save(user);
             return user;
         }
@@ -31,8 +32,6 @@ public class UserService {
 
     public User validateLogin(LoginRequest loginRequest) throws Exception {
         var user = userRepository.findByEmail(loginRequest.getEmail()).orElseThrow(() -> new EmailNotFoundException("email not found"));
-        System.out.println("Stored Password: " + user.getPassword());
-        System.out.println("Provided Password: " + loginRequest.getPassword());
         if (user.getPassword().equals(loginRequest.getPassword())) {
             return user;
         } else {

@@ -1,5 +1,6 @@
 package com.api.financasMaster.domain.user;
 
+import com.api.financasMaster.dto.UserDTO;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,4 +22,12 @@ public class User {
     private String email;
     private String password;
     private BigDecimal balance;
+
+    public User(UserDTO data){
+        this.firstName = data.firstName();
+        this.lastName = data.lastName();
+        this.email = data.email();
+        this.password = data.password();
+        this.balance = data.balance();
+    }
 }

@@ -2,6 +2,7 @@ package com.api.financasMaster.controller;
 
 import com.api.financasMaster.domain.user.User;
 import com.api.financasMaster.dto.LoginRequest;
+import com.api.financasMaster.dto.UserDTO;
 import com.api.financasMaster.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,15 +25,15 @@ public class UserController {
         }
     }
     @PostMapping("/singUp")
-    public ResponseEntity<User> singUp(@RequestBody User user) {
+    public ResponseEntity<User> singUp(@RequestBody UserDTO user) {
         try {
-            userService.validateSingUpUser(user);
-            return new ResponseEntity<>(user,HttpStatus.CREATED);
+            User newUser = userService.validateSingUpUser(user);
+            return new ResponseEntity<>(newUser,HttpStatus.CREATED);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
-    @PostMapping("/singIn")
+    @PostMapping("/login")
     public ResponseEntity<User> singIn(@RequestBody LoginRequest loginRequest) {
         try {
             var user = userService.validateLogin(loginRequest);

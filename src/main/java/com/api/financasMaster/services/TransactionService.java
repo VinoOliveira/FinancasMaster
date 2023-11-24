@@ -34,7 +34,7 @@ public class TransactionService {
 
             //adiciona o valor da transação ao saldo do usuario
             user.setBalance(user.getBalance().add(amount));
-            return new Transaction(user, amount, localDate, TransactionType.PROFIT);
+            return new Transaction(null,user, amount, localDate, TransactionType.PROFIT);
 
         } else if (type == TransactionType.EXPENSE) {
             // Valida se o saldo do usuário é maior ou igual ao valor da transação
@@ -44,7 +44,7 @@ public class TransactionService {
                 throw new IllegalArgumentException("Insufficient balance to complete the transaction.");
 
             } else {
-                return new Transaction(user, amount, localDate, TransactionType.EXPENSE);
+                return new Transaction(null,user, amount, localDate, TransactionType.EXPENSE);
             }
         }
 
@@ -60,14 +60,14 @@ public class TransactionService {
     //retorna os lucros do dia atual
     public BigDecimal calculateDailyProfits() {
         LocalDate hoje = LocalDate.now();
-        List<Transaction> transacoesDoDia = transactionRepository.findByTransactionDateAndType(hoje, TransactionType.PROFIT);
+        List<Transaction> transacoesDoDia = transactionRepository.findByDateAndTransactionType(hoje, TransactionType.PROFIT);
         return calculateTotal(transacoesDoDia);
     }
 
     //retorna as despesas do dia atual
     public BigDecimal calculateDailyExpenses() {
         LocalDate hoje = LocalDate.now();
-        List<Transaction> transacoesDoDia = transactionRepository.findByTransactionDateAndType(hoje, TransactionType.EXPENSE);
+        List<Transaction> transacoesDoDia = transactionRepository.findByDateAndTransactionType(hoje, TransactionType.EXPENSE);
         return calculateTotal(transacoesDoDia);
     }
 

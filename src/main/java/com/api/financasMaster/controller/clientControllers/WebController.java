@@ -15,4 +15,20 @@ public class WebController {
     public String loginPage(){
         return "LoginPage";
     }
+    @GetMapping("/singUp")
+    public String singUpPage(){
+        return "Sign-upPage";
+    }
+    @GetMapping("/profile")
+    public String profilePage(){
+        return "ProfilePage";
+    }
+    @GetMapping("/register")
+    public String registerPage(){
+        return "RegisterPage";
+    }
+    @GetMapping("/home")
+    public String homePage(){
+        return "TransactionPage";
+    }
 }

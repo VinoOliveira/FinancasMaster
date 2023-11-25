@@ -5,6 +5,7 @@ import com.api.financasMaster.domain.transaction.TransactionType;
 import com.api.financasMaster.domain.user.User;
 import com.api.financasMaster.dto.TransactionDTO;
 import com.api.financasMaster.repositories.TransactionRepository;
+import com.api.financasMaster.services.exceptions.InsufficientBalanceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,23 +44,23 @@ public class TransactionService {
         return mapTransactionsToDTOs(transactions);
     }
 
-    public List<TransactionDTO> findTransactionsByTypeToday(Integer userId , TransactionType profitType) {
+    public List<TransactionDTO> findTransactionsByTypeToday(Integer userId , TransactionType transactionType) {
         LocalDate date = LocalDate.now();
-        TransactionType profit = profitType;
-        List<Transaction> profitList = transactionRepository.findByDateAndTransactionType(date, profit);
+        TransactionType type = transactionType;
+        List<Transaction> list = transactionRepository.findByDateAndTransactionType(date,type ,userId);
 
-        return mapTransactionsToDTOs(profitList);
+        return mapTransactionsToDTOs(list);
     }
 
-    private void validateSufficientBalance(User user, BigDecimal transactionAmount) {
+    private void validateSufficientBalance(User user, BigDecimal transactionAmount) throws InsufficientBalanceException {
         if (user.getBalance().compareTo(transactionAmount) < 0) {
-            throw new IllegalArgumentException("Insufficient balance to complete the transaction.");
+            throw new InsufficientBalanceException("Insufficient balance to complete the transaction.");
         }
     }
 
-    private void validateTransactionAmount(BigDecimal amount) {
+    private void validateTransactionAmount(BigDecimal amount) throws InsufficientBalanceException {
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("The transaction amount must be greater than zero.");
+            throw new InsufficientBalanceException("The transaction amount must be greater than zero.");
         }
     }
 
@@ -75,7 +76,7 @@ public class TransactionService {
     }
 
     //atualiza o saldo o usuario com base no tipo de transação feita
-    private void processTransaction(User user, TransactionDTO transaction) {
+    private void processTransaction(User user, TransactionDTO transaction) throws InsufficientBalanceException {
         BigDecimal transactionAmount = transaction.amount();
         TransactionType transactionType = transaction.transactionType();
 

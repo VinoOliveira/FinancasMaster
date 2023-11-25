@@ -31,6 +31,7 @@ public class UserService {
             throw new EmailAlreadyRegisteredException("Email already registered");
         } else {
             User user = new User(data);
+            user.setBalance(BigDecimal.valueOf(0));
             userRepository.save(user);
             return user;
         }

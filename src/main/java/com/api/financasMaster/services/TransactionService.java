@@ -3,78 +3,99 @@ package com.api.financasMaster.services;
 import com.api.financasMaster.domain.transaction.Transaction;
 import com.api.financasMaster.domain.transaction.TransactionType;
 import com.api.financasMaster.domain.user.User;
+import com.api.financasMaster.dto.TransactionDTO;
 import com.api.financasMaster.repositories.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
-
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionService {
-    @Autowired
-    TransactionRepository transactionRepository;
-    @Autowired
-    UserService userService;
+    private final TransactionRepository transactionRepository;
+    private final UserService userService;
 
-    //valida o registro de uma nova transação
-    public Transaction validateRegisterTransaction(BigDecimal amount, Integer userId, TransactionType type) throws Exception {
+    @Autowired
+    public TransactionService(TransactionRepository transactionRepository, UserService userService) {
+        this.transactionRepository = transactionRepository;
+        this.userService = userService;
+    }
+
+    public Transaction validateRegisterTransaction(TransactionDTO transaction) throws Exception {
         LocalDate localDate = LocalDate.now();
-        User user = userService.findUserById(userId);
-        //valida se o valor da transação é maior que zero
+        User user = userService.findUserById(transaction.userId());
+
+        validateTransactionAmount(transaction.amount());
+        Transaction newTransaction = createTransaction(user, transaction, localDate);
+        processTransaction(user, transaction);
+
+        transactionRepository.save(newTransaction);
+        userService.saveUser(user);
+
+        return newTransaction;
+    }
+
+    public List<TransactionDTO> findTransactionByUserId(Integer userId) {
+        List <Transaction> transactions = transactionRepository.findByUserId(userId);
+        return mapTransactionsToDTOs(transactions);
+    }
+
+    public List<TransactionDTO> findTransactionsByTypeToday(Integer userId , TransactionType profitType) {
+        LocalDate date = LocalDate.now();
+        TransactionType profit = profitType;
+        List<Transaction> profitList = transactionRepository.findByDateAndTransactionType(date, profit);
+
+        return mapTransactionsToDTOs(profitList);
+    }
+
+    private void validateSufficientBalance(User user, BigDecimal transactionAmount) {
+        if (user.getBalance().compareTo(transactionAmount) < 0) {
+            throw new IllegalArgumentException("Insufficient balance to complete the transaction.");
+        }
+    }
+
+    private void validateTransactionAmount(BigDecimal amount) {
         if (amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new IllegalArgumentException("The transaction amount must be greater than zero.");
         }
-
-        // Criação da transação com base no tipo
-        else if (type == TransactionType.PROFIT) {
-
-            //adiciona o valor da transação ao saldo do usuario
-            user.setBalance(user.getBalance().add(amount));
-            return new Transaction(null,user, amount, localDate, TransactionType.PROFIT);
-
-        } else if (type == TransactionType.EXPENSE) {
-            // Valida se o saldo do usuário é maior ou igual ao valor da transação
-            if (user.getBalance().compareTo(amount) < 0) {
-                //subtrai o valor da transação do saldo do usuario
-                user.setBalance(user.getBalance().subtract(amount));
-                throw new IllegalArgumentException("Insufficient balance to complete the transaction.");
-
-            } else {
-                return new Transaction(null,user, amount, localDate, TransactionType.EXPENSE);
-            }
-        }
-
-        throw new IllegalArgumentException("Unsupported transaction type: " + type);
     }
 
-    public List<Transaction> findTransactionByUserId(Integer userId) {
-        List<Transaction> transactions = new ArrayList<>();
-        Transaction transaction = transactionRepository.findByUserId(userId);
-        return transactions;
+    private Transaction createTransaction(User user, TransactionDTO transaction, LocalDate localDate) {
+        return new Transaction(null, user, transaction.amount(), localDate, transaction.transactionType());
     }
 
-    //retorna os lucros do dia atual
-    public BigDecimal calculateDailyProfits() {
-        LocalDate hoje = LocalDate.now();
-        List<Transaction> transacoesDoDia = transactionRepository.findByDateAndTransactionType(hoje, TransactionType.PROFIT);
-        return calculateTotal(transacoesDoDia);
-    }
-
-    //retorna as despesas do dia atual
-    public BigDecimal calculateDailyExpenses() {
-        LocalDate hoje = LocalDate.now();
-        List<Transaction> transacoesDoDia = transactionRepository.findByDateAndTransactionType(hoje, TransactionType.EXPENSE);
-        return calculateTotal(transacoesDoDia);
-    }
-
-    //faz o calculo das transações
-    private BigDecimal calculateTotal(List<Transaction> transacoes) {
-        return transacoes.stream()
-                .map(Transaction::getAmount)
+    //soma o valor das transações
+    public BigDecimal sum(List<TransactionDTO> list) {
+        return list.stream()
+                .map(TransactionDTO::amount)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    //atualiza o saldo o usuario com base no tipo de transação feita
+    private void processTransaction(User user, TransactionDTO transaction) {
+        BigDecimal transactionAmount = transaction.amount();
+        TransactionType transactionType = transaction.transactionType();
+
+        if (transactionType == TransactionType.PROFIT) {
+            user.setBalance(user.getBalance().add(transactionAmount));
+        } else if (transactionType == TransactionType.EXPENSE) {
+            validateSufficientBalance(user, transactionAmount);
+            user.setBalance(user.getBalance().subtract(transactionAmount));
+        }
+    }
+
+    // transforma uma lista de Transaction em TrnsactionDTO
+    private List<TransactionDTO> mapTransactionsToDTOs(List<Transaction> transactions) {
+        return transactions.stream()
+                .map(transaction -> new TransactionDTO(
+                        transaction.getId(),
+                        transaction.getAmount(),
+                        transaction.getDate(),
+                        transaction.getTransactionType()
+                ))
+                .collect(Collectors.toList());
     }
 }

@@ -1,4 +1,4 @@
-package com.api.financasMaster.controller;
+package com.api.financasMaster.controller.serverControllers;
 
 import com.api.financasMaster.services.exceptions.*;
 import org.springframework.http.HttpStatus;

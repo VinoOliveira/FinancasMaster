@@ -1,4 +1,4 @@
-package com.api.financasMaster.controller;
+package com.api.financasMaster.controller.serverControllers;
 
 import com.api.financasMaster.domain.transaction.Transaction;
 import com.api.financasMaster.dto.TransactionDTO;

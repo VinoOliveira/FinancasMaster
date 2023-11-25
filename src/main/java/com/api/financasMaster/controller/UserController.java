@@ -3,6 +3,7 @@ package com.api.financasMaster.controller;
 import com.api.financasMaster.domain.user.User;
 import com.api.financasMaster.dto.LoginRequest;
 import com.api.financasMaster.dto.UserDTO;
+import com.api.financasMaster.dto.UserTransactionDTO;
 import com.api.financasMaster.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,15 +16,6 @@ public class UserController {
     @Autowired
     UserService userService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<User> getUser(@PathVariable Integer id){
-        try {
-            User user = userService.findUserById(id);
-            return new ResponseEntity<>(user, HttpStatus.OK);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
     @PostMapping("/singUp")
     public ResponseEntity<User> singUp(@RequestBody UserDTO user) {
         try {
@@ -34,7 +26,7 @@ public class UserController {
         }
     }
     @PostMapping("/login")
-    public ResponseEntity<User> singIn(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<UserTransactionDTO> singIn(@RequestBody LoginRequest loginRequest) {
         try {
             var user = userService.validateLogin(loginRequest);
             return new ResponseEntity<>(user,HttpStatus.OK);
@@ -42,6 +34,5 @@ public class UserController {
             throw new RuntimeException(e);
         }
     }
-
 
 }

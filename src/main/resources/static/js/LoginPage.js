@@ -1,22 +1,35 @@
-// form validation and login button redirection
-document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("btnLogin").addEventListener("click", function () {
-        var name = document.getElementById("name").value;
-        var password = document.getElementById("password").value;
+$(document).ready(function () {
+    $('#loginForm').submit(function (event) {
+        event.preventDefault();
 
-        var namePattern = /^[A-Za-z\s]+$/;
+        var email = $('#email').val();
+        var password = $('#password').val();
 
-        if (name.trim() === "" || password.trim() === "") {
-            alert("Please fill in all fields.");
-
-        } else if (!namePattern.test(name)) {
-            alert("Please enter a valid name without numbers.")
-        } else {
-            window.location.href = "/profile";
+        if (!isValidEmail(email)) {
+            alert("Please enter a valid email address.");
+            return;
         }
+
+        $.ajax({
+            url: '/user/login',
+            type: 'POST',
+            contentType: 'application/json;charset=UTF-8',
+            data: JSON.stringify({email: email, password: password}),
+            success: function(response) {
+                console.log("Login bem-sucedido!", response);
+                window.location.href = '/home';
+            },
+            error: function(xhr) {
+                console.error("Erro durante o login:", xhr.responseText);
+
+                var errorMessage = xhr.responseText;
+                alert(errorMessage);
+            }
+        });
     });
-
-
-
-
-});
+})
+// Função para validar o formato do e-mail
+function isValidEmail(email) {
+    var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailPattern.test(email);
+}

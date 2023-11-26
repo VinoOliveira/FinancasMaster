@@ -4,7 +4,7 @@ import com.api.financasMaster.domain.user.User;
 import com.api.financasMaster.dto.LoginRequest;
 import com.api.financasMaster.dto.UserDTO;
 import com.api.financasMaster.dto.UserTransactionDTO;
-import com.api.financasMaster.services.UserService;
+import com.api.financasMaster.services.UserService;import com.api.financasMaster.services.exceptions.UserNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,13 +26,25 @@ public class UserController {
         }
     }
     @PostMapping("/login")
-    public ResponseEntity<UserTransactionDTO> singIn(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<Integer> singIn(@RequestBody LoginRequest loginRequest) {
         try {
-            var user = userService.validateLogin(loginRequest);
-            return new ResponseEntity<>(user,HttpStatus.OK);
+            var userId = userService.validateLogin(loginRequest);
+            return new ResponseEntity<>(userId,HttpStatus.OK);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @GetMapping("/getUser/{id}")
+    public ResponseEntity<UserTransactionDTO> getUser(@PathVariable Integer id){
+        try{
+            User user = userService.findUserById(id);
+            UserTransactionDTO userTransactionDTO = userService.convertUser(user);
+            return new ResponseEntity<>(userTransactionDTO,HttpStatus.OK);
+        } catch (UserNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
 }

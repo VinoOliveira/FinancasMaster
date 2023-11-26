@@ -1,14 +1,12 @@
 $(document).ready(function () {
+    const userId = localStorage.getItem('userId');
+
+    if (!userId) {
+        window.location.href = '/login';
+        return;
+    }
     $('#transactionForm').submit(function (event) {
         event.preventDefault();
-
-        const userId = localStorage.getItem('userId');
-
-        if (!userId) {
-            // Se não houver ID de usuário, redirecionar para a página de login
-            window.location.href = '/login';
-            return;
-        }
 
         // Move a lógica de verificação do tipo de transação para dentro da função de envio do formulário
         var transactionType;

@@ -2,7 +2,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const userId = localStorage.getItem('userId');
 
     if (!userId) {
-        // Se não houver ID de usuário, redirecionar para a página de login
         window.location.href = '/login';
         return;
     }

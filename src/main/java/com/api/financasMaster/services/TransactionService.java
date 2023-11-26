@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,12 +27,10 @@ public class TransactionService {
 
     public Transaction validateRegisterTransaction(TransactionDTO transaction) throws Exception {
         LocalDate localDate = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        String formattedDate = localDate.format(formatter);
         User user = userService.findUserById(transaction.userId());
 
         validateTransactionAmount(transaction.amount());
-        Transaction newTransaction = createTransaction(user, transaction, formattedDate);
+        Transaction newTransaction = createTransaction(user, transaction, localDate);
         processTransaction(user, transaction);
 
         transactionRepository.save(newTransaction);
@@ -48,10 +45,9 @@ public class TransactionService {
     }
 
     public List<TransactionDTO> findTransactionsByTypeToday(Integer userId , TransactionType transactionType) {
-        LocalDate localDate = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        String formattedDate = localDate.format(formatter);
-        List<Transaction> list = transactionRepository.findByDateAndTransactionType(formattedDate, transactionType,userId);
+        LocalDate date = LocalDate.now();
+        TransactionType type = transactionType;
+        List<Transaction> list = transactionRepository.findByDateAndTransactionType(date,type ,userId);
 
         return mapTransactionsToDTOs(list);
     }
@@ -68,7 +64,7 @@ public class TransactionService {
         }
     }
 
-    private Transaction createTransaction(User user, TransactionDTO transaction, String localDate) {
+    private Transaction createTransaction(User user, TransactionDTO transaction, LocalDate localDate) {
         return new Transaction(null, user, transaction.amount(), localDate, transaction.transactionType());
     }
 

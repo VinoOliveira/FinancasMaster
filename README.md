@@ -22,7 +22,7 @@ O objetivo do software é criar uma ferramenta prática e intuitiva para auxilia
 
 ## Funcionalidades Principais
 
-- **Registro de Transações:** Os usuários podem registrar despesas e receitas, fornecendo valor e data.
+- **Registro de Transações:** Os usuários podem registrar despesas e receitas, fornecendo valor e tipo (lucro ou despesa).
 
 - **Cálculo do Saldo Atual:** O aplicativo calcula automaticamente o saldo com base nas transações registradas.
 

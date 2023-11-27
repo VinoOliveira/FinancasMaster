@@ -20,16 +20,17 @@ $(document).ready(function () {
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
+                if (response.status === 401) {
+                    alert("Incorrect password. Please try again.");
+                } else if (response.status === 404) {
+                    alert("Email not found. Please try again.");
+                }
             }
-
             const userId = await response.json();
             localStorage.setItem('userId', userId);
-
             window.location.href = '/home';
         } catch (error) {
-            console.error("Error during login:", error.message);
-            alert("An error occurred during login. Please try again.");
+
         }
     });
 });
